@@ -57,7 +57,7 @@ fun main() {
             }
             frames.add(array.map { row ->
                 row.map { col ->
-                    findClosestColor(MapColors.values().map {
+                    findClosestColor(MapColors.values().filter { color -> color != MapColors.NONE }.map {
                         Color(it.red(), it.green(), it.blue())
                     }.toTypedArray(), col!!)
                 }
