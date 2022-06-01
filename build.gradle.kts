@@ -13,4 +13,5 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.github.Minestom:Minestom:a01ff09563")
+    implementation("com.mortennobel:java-image-scaling:0.8.6")
 }

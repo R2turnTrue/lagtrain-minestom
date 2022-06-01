@@ -1,5 +1,7 @@
 package xyz.r2turntrue.video
 
+import com.mortennobel.imagescaling.ResampleFilters
+import com.mortennobel.imagescaling.ResampleOp
 import net.minestom.server.MinecraftServer
 import net.minestom.server.command.builder.Command
 import net.minestom.server.coordinate.Pos
@@ -13,10 +15,12 @@ import net.minestom.server.item.metadata.MapMeta
 import net.minestom.server.map.MapColors
 import net.minestom.server.map.framebuffers.DirectFramebuffer
 import java.awt.Color
+import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 import java.io.File
 import java.util.concurrent.CompletableFuture
 import javax.imageio.ImageIO
+
 
 val frames = ArrayList<Array<ByteArray>>()
 var f = 0
@@ -40,11 +44,14 @@ fun main() {
     File("frames").apply {
         if(!exists())
             mkdir()
+        val resizeOp = ResampleOp(128, 128)
+        resizeOp.filter = ResampleFilters.getBiCubicFilter() // You can change the filter when you need fast speed to process frames!
         listFiles()?.sortedBy {
             Integer.parseInt(it.nameWithoutExtension.replace("image-", ""))
         }?.forEach { file ->
             println("Processing: ${file.nameWithoutExtension}")
-            val bi = ImageIO.read(file)
+            val rawBi = ImageIO.read(file)
+            val bi = resizeOp.filter(rawBi, null)
             val data = (bi.raster.dataBuffer as DataBufferByte).data
             val array = Array(bi.width) { arrayOfNulls<Color>(bi.height) }
             for(row in 0 until bi.height) {
@@ -114,7 +121,7 @@ fun main() {
                             it.sendPacket(fb.preparePacket(1))
                         }
                         f++
-                        Thread.sleep(1000 / 15) // 15 FPS
+                        Thread.sleep(1000 / 15) // 60 FPS
                     }
                     f = 0
                 }
